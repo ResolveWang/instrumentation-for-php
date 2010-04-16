@@ -85,39 +85,52 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   	private static $instance;
    	private $debug = 0;
    	private static $started_at=0;
-
-   	
+   
+   	/* These counters are set to zero when the object
+   	 * is constructed.  This is mainly because these
+   	 * keys would not be present in the environment
+   	 * if the related functionality is not invoked.
+   	 */
+   	private $default_list = array(    		
+   			'mysql_query_count',
+			'mysql_prepare_count',
+			'mysql_prepare_time',
+			'mysql_connection_count',
+			'mysql_connect_time',  
+			'mysql_query_exec_time', 
+			'mysql_deadlock_count',
+			'memcache_connection_count', 
+			'memcache_delete_count',
+			'memcache_delete_time',
+			'memcache_miss_count' ,
+			'memcache_get_count', 
+			'memcache_get_time',
+			'memcache_set_count',
+			'memcache_set_time',
+			'memcache_add_count',
+			'memcache_add_time',
+			'memcache_replace_count',
+			'memcache_replace_time',
+			'memcache_increment_count',
+			'memcache_increment_time',
+			'memcache_decrement_count',
+			'memcache_decrement_time');
+    
+   	public function reset($extra_counters = array()) {
+   		/* resets all existing counters to zero, and also sets
+   		 * additional counters to zero if requested.
+   		 */
+   		$counters = array_merge(array_keys($this->counters), $extra_counters);
+    	foreach($counters as $counter) {
+    		$this->set($counter, 0);
+    	}	
+    }
+    
   	private function __construct() {
-  			/* Initialize counters we want to ensure are in the output
-			 * environment, but that might not be inintialized if there
-			 * are no calls to the related functionality
-			 */
-    		$this->set('mysql_query_count',0);
-			$this->set('mysql_prepare_count',0);
-			$this->set('mysql_prepare_time',0);
-			$this->set('mysql_connection_count', 0);
-			$this->set('mysql_connect_time', 0);  
-			$this->set('mysql_query_exec_time',0); 
-			$this->set('mysql_deadlock_count', 0);
-			
-			$this->set('memcache_connection_count',0); 
-			$this->set('memcache_delete_count',0);
-			$this->set('memcache_delete_time',0);
-			$this->set('memcache_miss_count',0); 
-			$this->set('memcache_get_count',0); 
-			$this->set('memcache_get_time', 0);
-			$this->set('memcache_set_count',0);
-			$this->set('memcache_set_time', 0);
-			$this->set('memcache_add_count',0);
-			$this->set('memcache_add_time', 0);
-			$this->set('memcache_replace_count',0);
-			$this->set('memcache_replace_time', 0);
-			$this->set('memcache_increment_count',0);
-			$this->set('memcache_increment_time', 0);
-			$this->set('memcache_decrement_count',0);
-			$this->set('memcache_decrement_time', 0);			
+		$this->reset($this->default_list);		
   	}
 
+  	
   	/* If the timer was started, then return the amount
   	 * of time elapsed in seconds with microsecond resolution.
   	 * 
@@ -197,7 +210,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 			}
 		}
     }
-    
+
     public function dump_counters($format = "table", $prefix="") {
     	$out = "";
 		foreach($this->counters as $counter => $val) {
@@ -210,16 +223,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     	  		default:
     	  			$val = serialize($val);
     	  		}
-    	  	
-    	  		if ($format == "table")
-    	  		   $out .= "<tr><td>$counter<td>$val</tr>";
-    	  		else
+    	  		switch($format) {
+    	  			case 'table':
+    	  		   		$out .= "<tr><td>$counter<td>$val</tr>";
+    	  		   		break;
+    	  			case 'console': 
+    	  				$out .= "$counter\t\t:$val\n";
+    	  				break;
+    	  			default:
     	  			$out .=" %\{CTR_{$counter}\}e"; 
+    	  		}
     	}
-    	if($format=="table") return "<table border=1><tr><td>counter<td>value</tr>{$out}</table>";
-    	return "<pre>
-    	$out
-    	</pre>";
+    	if($format=='table') return "<table border=1><tr><td>counter<td>value</tr>{$out}</table>";
+    	if($format != 'console')return "<pre>\n$out\n</pre>";
+    	return $out;
     }
     
     /* Add PHP stack information to a query along with the
@@ -230,7 +247,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     	
     	if ($query_sql) {
     		/* the first frame is the original caller of whatever function led us here */
-		$frame = array_pop(debug_backtrace());
+    	$bt = debug_backtrace();
+		$frame = array_pop($bt);
 		$file  = basename($frame['file']);
     		$query_header = "-- File: {$file}\tLine: {$frame['line']}\tFunction: {$frame['function']}\t";
         	foreach($keys as $x => $key) {
