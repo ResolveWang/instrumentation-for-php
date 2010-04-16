@@ -1,4 +1,5 @@
 <?php
+error_reporting(E_ALL);
 /* basic functionality testing.  could be much improved
    with something like PHPunit
 */
@@ -51,3 +52,4 @@ assert($conn !== false);
 assert($instance->get('mysql_connect_time') > 0);
 $stmt = MySQL_perf::mysql_query('select 1', $conn);
 assert($instance->get('mysql_query_exec_time') > 0);
+echo "Done.  Tests passed if there were no warnings or errors\n";
