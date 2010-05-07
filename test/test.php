@@ -21,6 +21,7 @@ echo "-- BEGIN --\n";
 $instance = false;
 $instance = Instrumentation::get_instance();
 assert($instance !== false);
+$instance->start_request();
 
 echo " * Test setting a counter to a value\n";
 $instance->set('test_counter', 'abc');
@@ -77,5 +78,5 @@ assert($instance->get('mysql_connection_count') == 1);
 $stmt = MySQL_perf::mysql_connect('127.0.0.1');
 assert($instance->get('mysql_connection_count') == 2);
 
-
+echo $instance->dump_counters('console') . "\n";
 echo "Done.  All tests passed.";

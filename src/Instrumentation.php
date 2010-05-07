@@ -65,6 +65,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * to put your application username into the apache log, for example.
  */
 
+if(!function_exists('apache_setenv')) {
+  function apache_setenv($var, $val) {
+    return true;
+  }
+}
+
 /* The instrumentation class implements a set of counter variables similar to MySQL 
  * status counters.  Counters are created dynamically, there is no
  * fixed list.
@@ -306,8 +312,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 			  }
 			}
 			
-			$this->set('action', $_SERVER['REQUEST_METHOD']);
-    		$this->set('request_id', sha1($_SERVER['REMOTE_PORT'] . $_SERVER['REMOTE_ADDR'] . $_SERVER['REQUEST_URI'] . microtime(true)));
+			if(!empty($_SERVER['REQUEST_METHOD'])) {
+				$this->set('action', $_SERVER['REQUEST_METHOD']);
+    				$this->set('request_id', sha1($_SERVER['REMOTE_PORT'] . $_SERVER['REMOTE_ADDR'] . $_SERVER['REQUEST_URI'] . microtime(true)));
+			}
 
     		register_shutdown_function(array('Instrumentation','end_request'));
     	}
