@@ -267,8 +267,9 @@ if(!function_exists('apache_setenv')) {
             	}
             
         }
-        if($this->debug) echo "<pre>$query_header\n$query_sql;</pre>";
-        return trim($query_header) . "\n" . $query_sql;
+        $r = $query_sql . "\n" . trim($query_header) ;
+        if($this->debug) echo "<pre>$r\n</pre>\n";
+        return $r;
     }
 
 
