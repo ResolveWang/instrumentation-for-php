@@ -46,7 +46,7 @@ $instance->reset();
 
 echo "* Test the mysqli functional interface\n";
 $conn = false;
-$conn = MySQLi_perf::mysqli_connect();
+$conn = MySQLi_perf::mysqli_connect('127.0.0.1','root');
 assert($conn !== false);
 assert($instance->get('mysql_connect_time') > 0);
 $r = MySQLi_perf::mysqli_query($conn,'select 1');
@@ -57,7 +57,7 @@ $instance->reset();
 
 echo "* Test the mysqli OO interface\n";
 $conn = false;
-$conn = new MySQLi_perf();
+$conn = new MySQLi_perf('127.0.0.1','root');
 assert($conn !== false);
 assert($instance->get('mysql_connect_time') > 0);
 $rows = $conn->query('select 1');
@@ -67,15 +67,15 @@ $instance->reset();
 $conn = false;
 
 echo "* Test the legacy MySQL interface\n";
-$conn = MySQL_perf::mysql_connect();
+$conn = MySQL_perf::mysql_connect('127.0.0.1','root');
 assert($conn !== false);
 assert($instance->get('mysql_connect_time') > 0);
 $stmt = MySQL_perf::mysql_query('select 1', $conn);
 assert($instance->get('mysql_query_exec_time') > 0);
 /* Test that the counter is only incremented when a new connection is made.*/
-$stmt = MySQL_perf::mysql_connect();
+$stmt = MySQL_perf::mysql_connect('127.0.0.1','root');
 assert($instance->get('mysql_connection_count') == 1);
-$stmt = MySQL_perf::mysql_connect('127.0.0.1');
+$stmt = MySQL_perf::mysql_connect('localhost','root');
 assert($instance->get('mysql_connection_count') == 2);
 
 echo $instance->dump_counters('console') . "\n";
