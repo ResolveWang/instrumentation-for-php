@@ -535,7 +535,7 @@ class MySQLi_perf extends MySQLi {
     		$instance->increment('mysql_query_count', 1);
 			$retry_count = 0;
 
-	    	Instrumentation::get_instance()->timer();
+	    	$sql = Instrumentation::get_instance()->timer();
 	    	$r = parent::multi_query($query, $resultmode);
             $time = $instance->timer();
 
