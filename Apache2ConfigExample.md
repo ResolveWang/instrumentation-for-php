@@ -1,0 +1,6 @@
+SetEnvIf Request\_URI \.php instrumented
+
+
+LogFormat "\"%{%Y-%m-%d %H:%M:%S}t\" %a %I %O %D %f %H %m \"%q\" %>s %V %{CTR\_total\_cpu\_time}e %{CTR\_cpu\_user}e %{CTR\_cpu\_system}e %{CTR\_memory\_usage}e \"%{CTR\_request\_id}e\" \"%{CTR\_SESSION\_uname}e\" \"%{CTR\_session\_id}e\" %{CTR\_mysql\_query\_count}e %{CTR\_mysql\_prepare\_count}e %{CTR\_mysql\_prepare\_time}e %{CTR\_mysql\_connection\_count}e %{CTR\_mysql\_query\_exec\_time}e %{CTR\_mysql\_deadlock\_count}e %{CTR\_memcache\_connection\_count}e %{CTR\_memcache\_delete\_count}e %{CTR\_memcache\_delete\_time}e %{CTR\_memcache\_miss\_count}e %{CTR\_memcache\_get\_count}e %{CTR\_memcache\_get\_time}e %{CTR\_memcache\_set\_count}e %{CTR\_memcache\_set\_time}e %{CTR\_memcache\_add\_count}e %{CTR\_memcache\_add\_time}e %{CTR\_memcache\_replace\_count}e %{CTR\_memcache\_replace\_time}e %{CTR\_memcache\_increment\_count}e %{CTR\_memcache\_increment\_time}e %{CTR\_memcache\_decrement\_count}e %{CTR\_memcache\_decrement\_time}e" performance
+
+CustomLog logs/performance\_log performance  env=instrumented
